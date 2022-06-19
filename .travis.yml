@@ -1,3 +1,4 @@
+dist: trusty
 language: node_js
 node_js:
   - "8"
@@ -8,6 +9,7 @@ before_install:
   - rvm install 2.2.2
   - npm i npx
 before_script:
+  - gem install ffi -v 1.12.2
   - gem install sass
   - npm install
 script:
