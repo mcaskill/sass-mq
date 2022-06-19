@@ -1,8 +1,8 @@
 <div align="center">
-	<img width="300" height="300" src="https://raw.githubusercontent.com/mcaskill/sass-mq/master/icon.png" alt="Awesome">
+	<img width="300" height="300" src="https://raw.githubusercontent.com/mcaskill/sass-mq/5.x/icon.png" alt="Awesome">
 </div>
 
-# Media Queries with superpowers [![Build Status](https://api.travis-ci.org/mcaskill/sass-mq.svg?branch=master)](https://travis-ci.org/mcaskill/sass-mq)
+# Media Queries with superpowers [![Build Status](https://app.travis-ci.com/mcaskill/sass-mq.svg?branch=5.x)](https://app.travis-ci.com/github/mcaskill/sass-mq/branches)
 
 **`mq()`+** is a [Sass](http://sass-lang.com/ "Sass - Syntactically Awesome Stylesheets") library that helps you compose media queries in an elegant way.
 
@@ -75,10 +75,10 @@ _The original `mq()` can be played with on [SassMeister](http://sassmeister.com/
 
 1. Install:
     - with [Bower](http://bower.io/ "Bower: A package manager for the web"): `bower install mcaskill-sass-mq --save`
-    - with [npm](https://www.npmjs.com/): `npm install @mcaskill/sass-mq --save` _supports [eyeglass](https://github.com/sass-eyeglass/eyeglass)_
-    - with [yarn](https://www.yarnpkg.com/): `yarn add @mcaskill/sass-mq` _supports [eyeglass](https://github.com/sass-eyeglass/eyeglass)_
+    - with [npm](https://www.npmjs.com/): `npm install @mcaskill/sass-mq@5 --save` _supports [eyeglass](https://github.com/sass-eyeglass/eyeglass)_
+    - with [yarn](https://www.yarnpkg.com/): `yarn add @mcaskill/sass-mq@5` _supports [eyeglass](https://github.com/sass-eyeglass/eyeglass)_
 
-    OR [Download _mq.scss](https://raw.github.com/mcaskill/sass-mq/master/_mq.scss) into your Sass project.
+    OR [Download _mq.scss](https://raw.github.com/mcaskill/sass-mq/5.x/_mq.scss) into your Sass project.
 
 2. Import the partial in your Sass files and override default settings
    with your own preferences before the file is imported:
@@ -313,7 +313,7 @@ then be shown in the top right corner of the viewport.
 $mq-show-breakpoints: (phone, phablet, tablet);
 ```
 
-![$mq-show-breakpoints](https://raw.githubusercontent.com/mcaskill/sass-mq/master/show-breakpoints.gif)
+![$mq-show-breakpoints](https://raw.githubusercontent.com/mcaskill/sass-mq/5.x/show-breakpoints.gif)
 
 ## Running tests
 
