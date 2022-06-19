@@ -1,3 +1,4 @@
+.eyeglass-cache
 *.sassc
 .sass-cache
 **.orig
