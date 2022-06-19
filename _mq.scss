@@ -9,7 +9,7 @@
 /// stakeholders, designers, developers, and testers.
 ///
 /// @type Map
-/// @link https://github.com/sass-mq/sass-mq#seeing-the-currently-active-breakpoint Full documentation and examples
+/// @link https://github.com/mcaskill/sass-mq#seeing-the-currently-active-breakpoint Full documentation and examples
 $breakpoints: (
   mobile: 320px,
   tablet: 740px,
@@ -38,7 +38,7 @@ $show-breakpoints: () !default;
 ///   @use 'path/to/mq' with ($media-type: 'screen');
 ///
 /// @type String
-/// @link https://github.com/sass-mq/sass-mq#changing-media-type Full documentation and example
+/// @link https://github.com/mcaskill/sass-mq#changing-media-type Full documentation and example
 $media-type: all !default;
 
 /// Convert pixels to ems
@@ -100,7 +100,7 @@ $media-type: all !default;
 /// @requires {function} px2em
 /// @requires {function} get-breakpoint-width
 ///
-/// @link https://github.com/sass-mq/sass-mq#responsive-mode-on-default Full documentation and examples
+/// @link https://github.com/mcaskill/sass-mq#responsive-mode Full documentation and examples
 ///
 /// @example scss
 ///  @use 'path/to/mq' as *;
@@ -258,7 +258,7 @@ $media-type: all !default;
 }
 
 /// Show the active breakpoint in the top right corner of the viewport
-/// @link https://github.com/sass-mq/sass-mq#seeing-the-currently-active-breakpoint
+/// @link https://github.com/mcaskill/sass-mq#seeing-the-currently-active-breakpoint
 ///
 /// @param {List} $show-breakpoints [$show-breakpoints] - List of breakpoints to show in the top right corner
 /// @param {Map} $breakpoints [$breakpoints] - Breakpoint names and sizes

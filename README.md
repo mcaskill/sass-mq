@@ -1,14 +1,28 @@
 <div align="center">
-	<img width="500" height="500" src="https://avatars3.githubusercontent.com/u/9341289?v=3&s=500" alt="Awesome">
+	<img width="300" height="300" src="https://raw.githubusercontent.com/mcaskill/sass-mq/main/icon.png" alt="Awesome">
 </div>
 
-# Media Queries with superpowers [![Build Status](https://api.travis-ci.org/sass-mq/sass-mq.svg?branch=main)](https://travis-ci.org/sass-mq/sass-mq)
+# Media Queries with superpowers [![Build Status](https://app.travis-ci.com/mcaskill/sass-mq.svg?branch=main)](https://app.travis-ci.com/github/mcaskill/sass-mq)
 
-`mq()` is a [Sass](http://sass-lang.com/ 'Sass - Syntactically Awesome
-Stylesheets') mixin that helps you compose media queries in an elegant way.
+**`mq()`+** is a [Sass](http://sass-lang.com/ "Sass - Syntactically Awesome Stylesheets")
+library that helps you compose media queries in an elegant way.
 
-- compiles keywords and `px`/`em` values to `em`-based queries ([a good thing](http://css-tricks.com/zooming-squishes))
-- For version 6 and up we removed fallbacks for older browsers (see [Mobile-first Responsive Web Design and IE8](http://www.theguardian.com/info/developer-blog/2013/oct/14/mobile-first-responsive-ie8) on the Guardian's developer blog).
+If you already use [@kaelig](https://github.com/kaelig)'s mixin, you know how to use MQ+.
+
+This fork provides various, often much-requested, enhancements over the original mixin.
+
+## Features
+
+> 👋 Note: This fork matches the same version tags of the original package.
+
+- Moved core operations from the _mixin_ to a _function_
+- This separation allows media queries to be chained through the `$and` and new `$or` parameters
+- Added a `$range-feature` parameter to allow media queries to target a different feature (device dimensions, aspect ratios, color, and resolution)
+
+See [breaking changes to the API](#breaking-changes).
+
+> A variant of the mixin using [Jacket](https://github.com/at-import/jacket),
+for rasterization, can be found here: [`mj()`](https://gist.github.com/mcaskill/89944b7ef12f37c85c05).
 
 Here is a very basic example:
 
@@ -26,8 +40,11 @@ Here is a very basic example:
   @include mq($from: mobile, $until: tablet) {
     background: red;
   }
-  @include mq($from: tablet) {
+  @include mq($from: tablet, $or: mq($until: mobile)) {
     background: green;
+  }
+  @include mq($from: 600px, $range-feature: height) {
+    font-size: 1.25em;
   }
 }
 ```
@@ -40,28 +57,31 @@ Compiles to:
     background: red;
   }
 }
-@media (min-width: 46.25em) {
+@media (min-width: 46.25em), (max-width: 19.99em) {
   .foo {
     background: green;
   }
 }
+@media (min-height: 37.5em) {
+  .foo {
+    font-size: 125em;
+  }
+}
 ```
-
-_Sass MQ was crafted in-house at the Guardian. Today, many more companies and developers are using it in their projects: [see who uses Sass MQ](#who-uses-sass-mq)._
 
 ## How to use it
 
-Immediately play with it on [SassMeister](http://sassmeister.com/): `@use 'mq';`.
-
-OR:
+> 👋 Note: This library will assume you are familiar with
+> the [original mixin](https://github.com/sass-mq/sass-mq#how-to-use-it)
+> and [Dart Sass](https://github.com/sass/dart-sass).
 
 1. Install:
 
-   - with [Bower](http://bower.io/ 'Bower: A package manager for the web'): `bower install sass-mq --save`
-   - with [npm](https://www.npmjs.com/): `npm install sass-mq --save`
-   - with [yarn](https://www.yarnpkg.com/): `yarn add sass-mq`
+   - with [Bower](http://bower.io/ 'Bower: A package manager for the web'): `bower install mcaskill-sass-mq@6 --save`
+   - with [npm](https://www.npmjs.com/): `npm install @mcaskill/sass-mq@6 --save`
+   - with [yarn](https://www.yarnpkg.com/): `yarn add @mcaskill/sass-mq@6`
 
-   OR [Download \_mq.scss](https://raw.github.com/sass-mq/sass-mq/main/_mq.scss) into your Sass project.
+   OR [Download \_mq.scss](https://raw.github.com/mcaskill/sass-mq/main/_mq.scss) into your Sass project.
 
 2. Import the partial in your Sass files and override default settings
    with your own preferences:
@@ -87,100 +107,37 @@ $show-breakpoints: (mobile, mobileLandscape, tablet, desktop, wide);
 
 @use 'path/to/mq' with (
   $breakpoints: $breakpoints,
-  $show-breakpoints: $show-breakpoints
+  $show-breakpoints: $show-breakpoints,
+  $range-feature: height
 );
 ```
 
-### Notes about `@use` Vs `@import`
+### Breaking changes
 
-When using the `@use` directive, you have to change your mindset when working with vars,
-functions or mixins and how they are now seen by Sass.
+While the original mixin takes up to five parameters, the enhanced
+mixin and function take up to seven parameters which changes the position
+of the last two parameters:
 
-Previously, with the `@import` statement any var, function, or mixin were exposed in the global scope.
-That means that you could define a var like `$mq-media-type: all` in your main sass file and use
-it anywhere as long as the main file had been loaded previously.
-
-This was possible because vars, functions, and mixins were set in the global scope.
-
-One drawback of this behaviour was that we needed to ensure not to pollute the global scope
-with common names or names that may be already taken by any other library.
-
-To solve this matter, we mostly used a prefix in vars, functions, or mixins in order to avoid
-collapsing names.
-
-Now with the new `@use` directive, no var, function, or mixin is placed in global scope, and they are
-all scoped within the file.
-
-That means that we explicitly need to include the partial file in each file that may use its vars,
-functions or mixins (similar to ES6 import modules).
-
-So, previously we could have a typical setup like this:
-
-```scss
-// main.scss
-@import 'mq';
-@import 'typography';
-@import 'layout';
-@include mq($from:tablet) {
-  ...
-}
-
-...
-
-// typography.scss
-@include mq($from:tablet) {
-  ...
-}
-
+```diff
+  @mixin mq(
+    $from: false,                   // One of the mapped breakpoints
+    $until: false,                  // One of the mapped breakpoints
+    $and: false,                    // Additional media query parameters
++   $or: false,                     // Alternate media query parameters
++   $range-feature: $range-feature  // Media range feature (width, height…)
+    $media-type: $media-type,       // Media type (screen, print…)
+    $breakpoints: $breakpoints      // Map of breakpoints
+  )
 ```
-
-Now, you will need to explicitly import the `_mq.scss` file in each file that needs to use any var, function
-or mixin from it:
-
-```scss
-// main.scss
-@use 'mq';
-@use 'typography';
-@use 'layout';
-@include mq.mq($from:tablet) {
-  ...
-}
-...
-
-// typography.scss
-@use 'mq';
-@include mq.mq($from:tablet) {
-  ...
-}
-```
-
-Other important things about `@use`:
-
-- The file is only imported once, no matter how many times you @use it in a project.
-
-- Variables, mixins, and functions (what Sass calls “members”) that start with an underscore (\_)
-  or hyphen (-) are considered private, and not imported.
-
-- Members from the used file are only made available locally, but not passed along to future
-  imports.
-
-- Similarly, `@extends` will only apply up the chain; extending selectors in imported files,
-  but not extending files that import this one.
-
-- All imported members are namespaced by default.
-
-Please see [introducing-sass-modules](https://css-tricks.com/introducing-sass-modules/) for more
-info about sass modules.
-
-3. Play around with `mq()` (see below)
 
 ### Responsive mode
 
-`mq()` takes up to three optional parameters:
+`mq()` takes up to four optional parameters:
 
-- `$from`: _inclusive_ `min-width` boundary
-- `$until`: _exclusive_ `max-width` boundary
+- `$from`: _inclusive_ `min-*` boundary
+- `$until`: _exclusive_ `max-*` boundary
 - `$and`: additional custom directives
+- `$or`: alternate custom directives
 
 Note that `$until` as a keyword is a hard limit i.e. it's breakpoint - 1.
 
@@ -206,49 +163,6 @@ Note that `$until` as a keyword is a hard limit i.e. it's breakpoint - 1.
   }
 }
 ```
-
-### Verbose and shorthand notations
-
-Sometimes you’ll want to be extra verbose (for example, if you’re developing a
-library based on top of sass-mq), however for readability in a codebase,
-the shorthand notation is recommended.
-
-All of these examples output the exact same thing and are here for
-reference, so you can use the notation that best matches your needs:
-
-```scss
-@use 'mq';
-// Verbose
-@include mq.mq(
-  $from: false,
-  $until: desktop,
-  $and: false,
-  $media-type: $media-type // defaults to 'all'
-) {
-  .foo {
-  }
-}
-
-// Omitting argument names
-@include mq.mq(false, desktop, false, $media-type) {
-  .foo {
-  }
-}
-
-// Omitting tailing arguments
-@include mq(false, desktop) {
-  .foo {
-  }
-}
-
-// Recommended
-@include mq($until: desktop) {
-  .foo {
-  }
-}
-```
-
-[See the detailed API documentation](http://sass-mq.github.io/sass-mq/#undefined-mixin-mq)
 
 ### Adding custom breakpoints
 
@@ -279,7 +193,36 @@ $show-breakpoints: (phone, phablet, tablet);
 );
 ```
 
-![$show-breakpoints](https://raw.githubusercontent.com/sass-mq/sass-mq/main/show-breakpoints.gif)
+![$show-breakpoints](https://raw.githubusercontent.com/mcaskill/sass-mq/main/show-breakpoints.gif)
+
+### Changing range feature
+
+If you want to specify a range feature, for example to write breakpoints
+for height first, set `$range-feature`:
+
+#### SCSS
+
+```scss
+@use 'mq' with (
+  $range-feature: height
+);
+
+.hero {
+  @include mq.mq(mobile) {
+    height: 300px;
+  }
+}
+```
+
+#### CSS output
+
+```css
+@media screen and (max-height: 19.99em) {
+  .hero {
+    height: 300px;
+  }
+}
+```
 
 ### Changing media type
 
@@ -337,53 +280,16 @@ Generate the documentation locally:
 sassdoc .
 ```
 
-Generate & deploy the documentation to <http://sass-mq.github.io/sass-mq/>:
+Generate & deploy the documentation to <https://mcaskill.github.io/sass-mq/>:
 
 ```sh
 npm run sassdoc
 ```
 
-## Inspired By…
-
-- <https://github.com/alphagov/govuk_frontend_toolkit/blob/master/stylesheets/_conditionals.scss>
-- <https://github.com/bits-sass/helpers-responsive/blob/master/_responsive.scss>
-- <https://gist.github.com/magsout/5978325>
-
-## On Mobile-first CSS With Legacy Browser Support
-
-- <http://jakearchibald.github.io/sass-ie/>
-- <http://nicolasgallagher.com/mobile-first-css-sass-and-ie/>
-- <http://cognition.happycog.com/article/fall-back-to-the-cascade>
-- <http://www.theguardian.com/info/developer-blog/2013/oct/14/mobile-first-responsive-ie8>
-
-## Who uses Sass MQ?
-
-Sass MQ was developed in-house at [the Guardian](http://www.theguardian.com/).
-
-These companies and projects use Sass MQ:
-
-- The Guardian
-- BBC (Homepage, Sport, News, Programmes)
-- The Financial Times
-- [Rightmove](http://www.rightmove.co.uk/)
-- [Stockholm International Fairs and Congress Centre](http://stockholmsmassan.se/?sc_lang=en)
-- [Beyond](https://bynd.com/)
-- [EQ Design](http://eqdesign.co.uk/)
-- [Baseguide](http://basegui.de/)
-- [Base Creative](http://www.basecreative.co.uk/)
-- [Locomotive](http://locomotive.ca/)
-- [Le Figaro](http://tvmag.lefigaro.fr/) (TV Mag)
-- [LunaWeb](http://www.lunaweb.fr)
-- [inuitcss](https://github.com/inuitcss/inuitcss)
-- [Hotelbeds Group](http://group.hotelbeds.com/)
-- [Beneš & Michl](http://www.benes-michl.cz)
-- [Manchester International Festival](http://mif.co.uk/)
-- [Shopify Polaris](https://polaris.shopify.com)
-- [Taylor / Thomas](https://www.taylorthomas.co.uk/)
-- [GOV.UK Design System](https://design-system.service.gov.uk/)
-- You? [Open an issue](https://github.com/sass-mq/sass-mq/issues/new?title=My%20company%20uses%20Sass%20MQ&body=Hi,%20we%27re%20using%20Sass%20MQ%20at%20[name%20of%20your%20company]%20and%20we%27d%20like%20to%20be%20mentionned%20in%20the%20README%20of%20the%20project.%20Cheers!)
-
 ---
 
-Looking for a more advanced sass-mq, with support for height and other niceties?  
-Give [@mcaskill's fork of sass-mq](https://github.com/mcaskill/sass-mq) a try.
+> Sass MQ was crafted in-house at the Guardian and is improved upon by many contributors.
+
+Thank you to @kaelig, @sndrs, @area73, and contributors for the original mixin.
+
+❤️
