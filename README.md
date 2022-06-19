@@ -1,8 +1,8 @@
 <div align="center">
-	<img width="300" height="300" src="https://raw.githubusercontent.com/mcaskill/sass-mq/main/icon.png" alt="Awesome">
+	<img width="300" height="300" src="https://raw.githubusercontent.com/mcaskill/sass-mq/6.x/icon.png" alt="Awesome">
 </div>
 
-# Media Queries with superpowers [![Build Status](https://app.travis-ci.com/mcaskill/sass-mq.svg?branch=main)](https://app.travis-ci.com/github/mcaskill/sass-mq)
+# Media Queries with superpowers [![Build Status](https://app.travis-ci.com/mcaskill/sass-mq.svg?branch=6.x)](https://app.travis-ci.com/github/mcaskill/sass-mq/branches)
 
 **`mq()`+** is a [Sass](http://sass-lang.com/ "Sass - Syntactically Awesome Stylesheets")
 library that helps you compose media queries in an elegant way.
@@ -72,7 +72,7 @@ Compiles to:
 ## How to use it
 
 > 👋 Note: This library will assume you are familiar with
-> the [original mixin](https://github.com/sass-mq/sass-mq#how-to-use-it)
+> the [original mixin](https://github.com/sass-mq/sass-mq/tree/v6.0.0#how-to-use-it)
 > and [Dart Sass](https://github.com/sass/dart-sass).
 
 1. Install:
@@ -81,7 +81,7 @@ Compiles to:
    - with [npm](https://www.npmjs.com/): `npm install @mcaskill/sass-mq@6 --save`
    - with [yarn](https://www.yarnpkg.com/): `yarn add @mcaskill/sass-mq@6`
 
-   OR [Download \_mq.scss](https://raw.github.com/mcaskill/sass-mq/main/_mq.scss) into your Sass project.
+   OR [Download \_mq.scss](https://raw.github.com/mcaskill/sass-mq/6.x/_mq.scss) into your Sass project.
 
 2. Import the partial in your Sass files and override default settings
    with your own preferences:
@@ -193,7 +193,7 @@ $show-breakpoints: (phone, phablet, tablet);
 );
 ```
 
-![$show-breakpoints](https://raw.githubusercontent.com/mcaskill/sass-mq/main/show-breakpoints.gif)
+![$show-breakpoints](https://raw.githubusercontent.com/mcaskill/sass-mq/6.x/show-breakpoints.gif)
 
 ### Changing range feature
 
