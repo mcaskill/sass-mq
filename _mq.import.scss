@@ -1,2 +1,3 @@
 @forward 'mq' as mq-*;
-@forward 'mq' hide show-breakpoints, add-breakpoint, get-breakpoint-width, px2em, $media-type, $show-breakpoints, $breakpoints;
+@forward 'mq' hide show-breakpoints, add-breakpoint, get-breakpoint-length,
+stringify, px2em, $range-feature, $media-type, $show-breakpoints, $breakpoints;

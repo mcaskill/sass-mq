@@ -21,7 +21,7 @@ $breakpoints: (
 ///
 /// If you want to display the currently active breakpoint in the top
 /// right corner of your site during development, add the breakpoints
-/// to this list, ordered by width. For example: (mobile, tablet, desktop).
+/// to this list, ordered by length. For example: (mobile, tablet, desktop).
 ///
 /// @example scss
 ///   @use 'path/to/mq' with ($show-breakpoints: ('mobile', 'tablet', 'desktop'));
@@ -29,6 +29,18 @@ $breakpoints: (
 ///
 /// @type map
 $show-breakpoints: () !default;
+
+/// Customize the media range feature (for example: `@media (min-width…)`
+/// or `@media (min-height:…)`)
+/// By default sass-mq uses an `width` range feature.
+///
+/// If you want to overried the range feature, you can use this option.
+/// @example scss
+///   @use 'path/to/mq' with ($range-feature: height);
+///
+/// @type String
+/// @link https://github.com/mcaskill/sass-mq#changing-range-feature Full documentation and example
+$range-feature: width !default;
 
 /// Customize the media type (for example: `@media screen` or `@media print`)
 /// By default sass-mq uses an "all" media type (`@media all and …`)
@@ -50,7 +62,6 @@ $media-type: all !default;
 ///  p { font-size: px2em(16px); }
 ///
 /// @returns {Number}
-
 @function px2em($px) {
   @if math.is-unitless($px) {
     @warn "Assuming #{$px} to be in pixels, attempting to convert it into pixels.";
@@ -63,18 +74,18 @@ $media-type: all !default;
   @return math.div($px, 16px) * 1em;
 }
 
-/// Get a breakpoint's width
+/// Get a breakpoint's length
 ///
 /// @param {String} $name - Name of the breakpoint. One of $breakpoints
 ///
 /// @example scss
-///  $tablet-width: get-breakpoint-width(tablet);
-///  @media (min-width: get-breakpoint-width(tablet)) {}
+///  $tablet-width: get-breakpoint-length(tablet);
+///  @media (min-width: get-breakpoint-length(tablet)) {}
 ///
 /// @requires {Variable} $breakpoints
 ///
 /// @returns {Number} Value in pixels
-@function get-breakpoint-width($name, $breakpoints: $breakpoints) {
+@function get-breakpoint-length($name, $breakpoints: $breakpoints) {
   @if map.has-key($breakpoints, $name) {
     @return map.get($breakpoints, $name);
   } @else {
@@ -83,22 +94,156 @@ $media-type: all !default;
   }
 }
 
-/// Media Query mixin
+/// Joins all elements of `$list` with `$glue`.
+///
+/// @ignore Documentation: https://github.com/at-import/SassyLists/blob/master/stylesheets/functions/_to-string.scss
+///
+/// @param {List} $list - list to cast
+/// @param {String} $glue [' and '] - value to use as a join string
+///
+/// @example scss
+///  stringify(a b c)
+///  // a and b and c
+///
+/// @example scss
+///  stringify(a b c, ', ')
+///  // a, b, c
+///
+/// @returns {String}
+@function stringify($list, $glue: ' and ') {
+  $result: '';
+
+  @each $item in $list {
+    $result: $result + if(length($item) > 1, stringify($item, $glue), $item);
+
+    @if $item != nth($list, -1) {
+      $result: $result + $glue;
+    }
+  }
+
+  @return quote($result);
+}
+
+/// Media Query function
+///
+/// Computes a media query based on a list of conditions.
 ///
 /// @param {String | Boolean} $from [false] - One of $breakpoints
 /// @param {String | Boolean} $until [false] - One of $breakpoints
 /// @param {String | Boolean} $and [false] - Additional media query parameters
+/// @param {String | Boolean} $or [false] - Alternative media query parameters
+/// @param {String} $range-feature [$range-feature] - Media range feature: width, height…
 /// @param {String} $media-type [$media-type] - Media type: screen, print…
 ///
 /// @ignore Undocumented API, for advanced use only:
 /// @ignore @param {Map} $breakpoints [$breakpoints]
 ///
-/// @content styling rules, wrapped into a @media query when $responsive is true
-///
+/// @requires {Variable} $range-feature
 /// @requires {Variable} $media-type
 /// @requires {Variable} $breakpoints
-/// @requires {function} px2em
-/// @requires {function} get-breakpoint-width
+/// @requires {function} stringify
+///
+/// @example scss
+///  $mq-lap-and-up: mq($from: mobile);
+///
+///  $mq-palm: mq($until: tablet);
+///
+///  $mq-lap: mq(mobile, tablet);
+///
+///  $mq-portable: mq($from: tablet, $and: '(orientation: landscape)');
+///
+///  $mq-desk-small: mq(950px) {
+///
+///  $mq-portable-screen: mq(tablet, $media-type: screen) {
+///
+///  // Advanced use:
+///  $my-breakpoints: (L: 900px, XL: 1200px);
+///  $mq-custom: mq(L, $breakpoints: $my-breakpoints);
+@function mq(
+  $from: false,
+  $until: false,
+  $and: false,
+  $or: false,
+  $range-feature: $range-feature,
+  $media-type: $media-type,
+  $breakpoints: $breakpoints
+) {
+  $min-value: 0;
+  $max-value: 0;
+  $media-query: ();
+
+  // From: this breakpoint (inclusive)
+  @if $from {
+    @if type-of($from) == number {
+      $min-value: px2em($from);
+    } @else {
+      $min-value: px2em(get-breakpoint-length($from, $breakpoints));
+    }
+  }
+
+  // Until: that breakpoint (exclusive)
+  @if $until {
+    @if type-of($until) == number {
+      $max-value: px2em($until);
+    } @else {
+      $max-value: px2em(get-breakpoint-length($until, $breakpoints)) - 0.01em;
+    }
+  }
+
+  @if $range-feature {
+    @if $min-value != 0 {
+      $media-query: append($media-query, '(min-#{$range-feature}: #{$min-value})');
+    }
+    @if $max-value != 0 {
+      $media-query: append($media-query, '(max-#{$range-feature}: #{$max-value})');
+    }
+  }
+
+  @if $and {
+    $media-query: append($media-query, '#{$and}');
+  }
+
+  $media-query: stringify($media-query, ' and ');
+
+  // Prevent unnecessary media query prefix 'all and '
+  @if ($media-type != 'all' and $media-query != '') {
+    $media-query: '#{$media-type} and #{$media-query}';
+  }
+  @else if $media-query == '' {
+    $media-query: $media-type;
+  }
+
+  @if $or {
+    $media-query: append($media-query, '#{$or}');
+    $media-query: stringify($media-query, ', ');
+  }
+
+  $media-query: unquote("#{$media-query}");
+
+  @return $media-query;
+}
+
+/// Media Query mixin
+///
+/// Generates a media query block, based on a list of conditions, around a set
+/// of nested CSS statements.
+///
+/// @param {String | Boolean} $from [false] - One of $breakpoints
+/// @param {String | Boolean} $until [false] - One of $breakpoints
+/// @param {String | Boolean} $and [false] - Additional media query parameters
+/// @param {String | Boolean} $or [false] - Alternative media query parameters
+/// @param {String} $range-feature [$range-feature] - Media range feature: width, height…
+/// @param {String} $media-type [$media-type] - Media type: screen, print…
+///
+/// @ignore Undocumented API, for advanced use only:
+/// @ignore @param {Map} $breakpoints [$breakpoints]
+///
+/// @content styling rules, wrapped into a @media query
+///
+/// @requires {Variable} $range-feature
+/// @requires {Variable} $media-type
+/// @requires {Variable} $breakpoints
+/// @requires {function} mq
 ///
 /// @link https://github.com/mcaskill/sass-mq#responsive-mode Full documentation and examples
 ///
@@ -133,48 +278,22 @@ $media-type: all !default;
   $from: false,
   $until: false,
   $and: false,
+  $or: false,
+  $range-feature: $range-feature,
   $media-type: $media-type,
   $breakpoints: $breakpoints
 ) {
-  $min-width: 0;
-  $max-width: 0;
-  $media-query: '';
+  $media-query: mq(
+    $from,
+    $until,
+    $and,
+    $or,
+    $range-feature,
+    $media-type,
+    $breakpoints
+  );
 
-  // From: this breakpoint (inclusive)
-  @if $from {
-    @if type-of($from) == number {
-      $min-width: px2em($from);
-    } @else {
-      $min-width: px2em(get-breakpoint-width($from, $breakpoints));
-    }
-  }
-
-  // Until: that breakpoint (exclusive)
-  @if $until {
-    @if type-of($until) == number {
-      $max-width: px2em($until);
-    } @else {
-      $max-width: px2em(get-breakpoint-width($until, $breakpoints)) - 0.01em;
-    }
-  }
-
-  @if $min-width != 0 {
-    $media-query: '#{$media-query} and (min-width: #{$min-width})';
-  }
-  @if $max-width != 0 {
-    $media-query: '#{$media-query} and (max-width: #{$max-width})';
-  }
-  @if $and {
-    $media-query: '#{$media-query} and #{$and}';
-  }
-
-  // Remove unnecessary media query prefix 'all and '
-  @if ($media-type == 'all' and $media-query != '') {
-    $media-type: '';
-    $media-query: str-slice(unquote($media-query), 6);
-  }
-
-  @media #{$media-type + $media-query} {
+  @media #{$media-query} {
     @content;
   }
 }
@@ -242,16 +361,16 @@ $media-type: all !default;
 /// Add a breakpoint
 ///
 /// @param {String} $name - Name of the breakpoint
-/// @param {Number} $width - Width of the breakpoint
+/// @param {Number} $length - Length of the breakpoint
 ///
 /// @requires {Variable} $breakpoints
 ///
 /// @example scss
 ///  @include add-breakpoint(tvscreen, 1920px);
 ///  @include mq(tvscreen) {}
-@mixin add-breakpoint($name, $width) {
+@mixin add-breakpoint($name, $length) {
   $new-breakpoint: (
-    $name: $width,
+    $name: $length,
   );
   $breakpoints: map.merge($breakpoints, $new-breakpoint) !global;
   $breakpoints: _map-sort-by-value($breakpoints) !global;
@@ -291,9 +410,9 @@ $media-type: all !default;
 
     // Loop through the breakpoints that should be shown
     @each $show-breakpoint in $show-breakpoints {
-      $width: get-breakpoint-width($show-breakpoint, $breakpoints);
+      $length: get-breakpoint-length($show-breakpoint, $breakpoints);
       @include mq($show-breakpoint, $breakpoints: $breakpoints) {
-        content: '#{$show-breakpoint} ≥ #{$width} (#{px2em($width)})';
+        content: '#{$show-breakpoint} ≥ #{$length} (#{px2em($length)})';
       }
     }
   }

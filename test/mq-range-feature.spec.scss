@@ -1,0 +1,23 @@
+@use 'true' as *;
+@use '_mq' as mq with ($range-feature: height);
+@use 'sass:meta';
+
+@include describe('[variable] $range-feature') {
+  @include describe('Given new values to override $range-feature') {
+    @include it('Should output a min-height media query') {
+      @include assert {
+        @include output {
+          @include mq.mq(720px) {
+            content: 'min-height media query';
+          }
+        }
+
+        @include expect {
+          @media (min-height: 45em) {
+            content: 'min-height media query';
+          }
+        }
+      }
+    }
+  }
+}
