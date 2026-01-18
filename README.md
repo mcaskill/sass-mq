@@ -1,13 +1,16 @@
 <div align="center">
-	<img width="300" height="300" src="https://raw.githubusercontent.com/mcaskill/sass-mq/6.x/icon.png" alt="Awesome">
+	<img width="100" height="100" src="https://raw.githubusercontent.com/mcaskill/sass-mq/6.x/icon.png" alt="Awesome">
 </div>
 
 # Media Queries with superpowers [![Build Status](https://app.travis-ci.com/mcaskill/sass-mq.svg?branch=6.x)](https://app.travis-ci.com/github/mcaskill/sass-mq/branches)
 
+> [!CAUTION]
+> This library is no longer maintained.
+
 **`mq()`+** is a [Sass](http://sass-lang.com/ "Sass - Syntactically Awesome Stylesheets")
 library that helps you compose media queries in an elegant way.
 
-If you already use [@kaelig](https://github.com/kaelig)'s mixin, you know how to use MQ+.
+If you already use [@kaelig](https://github.com/kaelig)'s [mixin](https://github.com/sass-mq/sass-mq), you know how to use MQ+.
 
 This fork provides various, often much-requested, enhancements over the original mixin.
 
